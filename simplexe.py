@@ -1,12 +1,26 @@
-def solve_simplex(coefficients, constraints, objective):
-    # Fonction pour résoudre le problème d'optimisation linéaire avec la méthode du simplexe
-    # coefficients: liste des coefficients des variables dans l'objectif
-    # constraints: liste des contraintes sous forme de listes de coefficients
-    # objective: 'max' ou 'min' pour indiquer s'il s'agit d'une maximisation ou d'une minimisation
+from scipy.optimize import linprog
+import numpy as np
+
+def solve_simplex(obj, lhs, rhs, bnd):
+    # Résoudre le problème d'optimisation linéaire avec la méthode du simplexe pour maximiser
+    optimization_max = linprog(c=obj, A_ub=lhs, b_ub=rhs, bounds=bnd, method='simplex')
     
-    # Implémentez ici l'algorithme du simplexe pour résoudre le problème d'optimisation linéaire
-    # Assurez-vous de gérer correctement les cas où la solution est non bornée ou non réalisable
-    # Retournez la solution optimale sous forme d'un dictionnaire avec les valeurs des variables
+    # Vérifier si la solution maximale est réalisable
+    if optimization_max.success:
+        solution_max = optimization_max.x
+    else:
+        raise ValueError("Le problème n'a pas de solution maximale réalisable.")
     
-    # Pour cet exemple, nous retournons une solution factice
-    return {'x1': 10, 'x2': 20}
+    # Modifier les coefficients de l'objectif pour minimiser
+    obj_min = [-c for c in obj]
+    
+    # Résoudre le problème d'optimisation linéaire avec la méthode du simplexe pour minimiser
+    optimization_min = linprog(c=obj_min, A_ub=lhs, b_ub=rhs, bounds=bnd, method='simplex')
+    
+    # Vérifier si la solution minimale est réalisable
+    if optimization_min.success:
+        solution_min = [-x for x in optimization_min.x]
+    else:
+        raise ValueError("Le problème n'a pas de solution minimale réalisable.")
+    
+    return solution_max, solution_min
