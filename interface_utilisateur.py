@@ -72,7 +72,12 @@ def update_constraint_rows(num_constraints):
         for j, entry in enumerate(constraint_entries[i]):
             entry.grid(row=0, column=j, padx=5, pady=5)
 
+
+# Simplex Method Implementation
 def solve():
+    # Clear previous results
+    result_label.config(text="")
+
     # Collect coefficients
     c = [float(entry.get()) for entry in objective_coefficient_entries]
 
@@ -91,19 +96,97 @@ def solve():
     b = np.array(b)
 
     # Solve linear programming problem
-    max_solution = linprog(c, A_ub=A, b_ub=b, method='highs')  # Maximize
-    min_solution = linprog(-c, A_ub=A, b_ub=b, method='highs')  # Minimize
+    if maximize_var.get():
+        # Solve as a maximization problem
+        solution = linprog(-c, A_ub=A, b_ub=b)
+    else:
+        # Solve as a minimization problem
+        solution = linprog(c, A_ub=A, b_ub=b)
+
+    # If maximizing, negate the objective value back
+    if maximize_var.get():
+        solution.fun = solution.fun
 
     # Display results
-    result_label.config(text=f"Max Solution: {max_solution.fun}\nMin Solution: {min_solution.fun}")
+    result_label.config(text=f"Objective Value: {solution.fun}\nOptimized Decision Variables: {solution.x}")
+
+    # Clear previous results
+    result_label.config(text="")
+
+    # Collect coefficients
+    c = [float(entry.get()) for entry in objective_coefficient_entries]
+
+    # Collect constraints
+    A = []
+    b = []
+    for entries in constraint_entries:
+        constraint_coeffs = [float(entry.get()) for entry in entries[:-1]]
+        constraint_rhs = float(entries[-1].get())
+        A.append(constraint_coeffs)
+        b.append(constraint_rhs)
+
+    # Convert to numpy arrays
+    c = np.array(c)
+    A = np.array(A)
+    b = np.array(b)
+
+    # Solve linear programming problem
+    if maximize_var.get():
+        # Solve as a maximization problem
+        solution = linprog(-c, A_ub=A, b_ub=b)
+    else:
+        # Solve as a minimization problem
+        solution = linprog(c, A_ub=A, b_ub=b)
+
+    # Display results
+    result_label.config(text=f"Objective Value: {solution.fun}\nOptimized Decision Variables: {solution.x}")
+
+    # Clear previous results
+    result_label.config(text="")
+
+    # Collect coefficients
+    c = [float(entry.get()) for entry in objective_coefficient_entries]
+
+    # Collect constraints
+    A = []
+    b = []
+    for entries in constraint_entries:
+        constraint_coeffs = [float(entry.get()) for entry in entries[:-1]]
+        constraint_rhs = float(entries[-1].get())
+        A.append(constraint_coeffs)
+        b.append(constraint_rhs)
+
+    # Convert to numpy arrays
+    c = np.array(c)
+    A = np.array(A)
+    b = np.array(b)
+
+    # Solve linear programming problem
+    if maximize_var.get():
+        c = -c  # If maximizing, negate the objective function coefficients
+
+    # Solve the linear programming problem
+    solution = linprog(c, A_ub=A, b_ub=b)
+
+    # Display results
+    result_label.config(text=f"Objective Value: {solution.fun}\nOptimized Decision Variables: {solution.x}")
 
 # Solve Button
 solve_button = tk.Button(root, text="Solve", command=solve)
 solve_button.grid(row=100, column=0, columnspan=2, pady=10)
 
+# Radio buttons for maximizing and minimizing
+maximize_var = tk.IntVar()
+
+maximize_button = tk.Radiobutton(root, text="Maximize", variable=maximize_var, value=1)
+maximize_button.grid(row=101, column=0, padx=5, pady=5)
+
+minimize_button = tk.Radiobutton(root, text="Minimize", variable=maximize_var, value=0)
+minimize_button.grid(row=101, column=1, padx=5, pady=5)
+
 # Output Area
 output_frame = tk.Frame(root)
-output_frame.grid(row=101, column=0, columnspan=2)
+output_frame.grid(row=102, column=0, columnspan=2)
 
 result_label = tk.Label(output_frame, text="")
 result_label.pack()
