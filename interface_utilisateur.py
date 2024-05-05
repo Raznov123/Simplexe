@@ -105,68 +105,7 @@ def solve():
 
     # If maximizing, negate the objective value back
     if maximize_var.get():
-        solution.fun = solution.fun
-
-    # Display results
-    result_label.config(text=f"Objective Value: {solution.fun}\nOptimized Decision Variables: {solution.x}")
-
-    # Clear previous results
-    result_label.config(text="")
-
-    # Collect coefficients
-    c = [float(entry.get()) for entry in objective_coefficient_entries]
-
-    # Collect constraints
-    A = []
-    b = []
-    for entries in constraint_entries:
-        constraint_coeffs = [float(entry.get()) for entry in entries[:-1]]
-        constraint_rhs = float(entries[-1].get())
-        A.append(constraint_coeffs)
-        b.append(constraint_rhs)
-
-    # Convert to numpy arrays
-    c = np.array(c)
-    A = np.array(A)
-    b = np.array(b)
-
-    # Solve linear programming problem
-    if maximize_var.get():
-        # Solve as a maximization problem
-        solution = linprog(-c, A_ub=A, b_ub=b)
-    else:
-        # Solve as a minimization problem
-        solution = linprog(c, A_ub=A, b_ub=b)
-
-    # Display results
-    result_label.config(text=f"Objective Value: {solution.fun}\nOptimized Decision Variables: {solution.x}")
-
-    # Clear previous results
-    result_label.config(text="")
-
-    # Collect coefficients
-    c = [float(entry.get()) for entry in objective_coefficient_entries]
-
-    # Collect constraints
-    A = []
-    b = []
-    for entries in constraint_entries:
-        constraint_coeffs = [float(entry.get()) for entry in entries[:-1]]
-        constraint_rhs = float(entries[-1].get())
-        A.append(constraint_coeffs)
-        b.append(constraint_rhs)
-
-    # Convert to numpy arrays
-    c = np.array(c)
-    A = np.array(A)
-    b = np.array(b)
-
-    # Solve linear programming problem
-    if maximize_var.get():
-        c = -c  # If maximizing, negate the objective function coefficients
-
-    # Solve the linear programming problem
-    solution = linprog(c, A_ub=A, b_ub=b)
+        solution.fun = -solution.fun
 
     # Display results
     result_label.config(text=f"Objective Value: {solution.fun}\nOptimized Decision Variables: {solution.x}")
